@@ -46,9 +46,9 @@
                     Rating: {{ movie.rated }}
                 </p>
                 <p class="card-text">{{ movie.plot }}</p>
-                <a class="btn btn-primary">
+                <router-link :to="'/movie/'+movie._id" class="btn btn-primary">
                     View Reviews
-                </a>
+                </router-link>
                 </div>
             </div>
             </div>
