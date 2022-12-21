@@ -58,6 +58,8 @@
 </template>
 
 <script>
+import MovieService from '../services/MovieService';
+
 export default {
   name: 'Movies',
   data() {
@@ -73,40 +75,25 @@ export default {
     this.getRatings();
   },
   methods: {
-    getMovies() {
-      this.movies = [
-        {
-          _id: '3',
-          title: 'Matrix',
-          poster: 'https://upload.wikimedia.org/wikipedia/en/thumb/c/c1/The_Matrix_Poster.jpg/220px-The_Matrix_Poster.jpg',
-          rated: 'AG',
-          plot: 'Best Movie',
-        },
-        {
-          _id: '4',
-          title: 'Matrix 2',
-          poster: 'https://upload.wikimedia.org/wikipedia/en/thumb/c/c1/The_Matrix_Poster.jpg/220px-The_Matrix_Poster.jpg',
-          rated: 'AG',
-          plot: 'Best Movie',
-        },
-        {
-          _id: '5',
-          title: 'Matrix 3',
-          poster: 'https://upload.wikimedia.org/wikipedia/en/thumb/c/c1/The_Matrix_Poster.jpg/220px-The_Matrix_Poster.jpg',
-          rated: 'AG',
-          plot: 'Best Movie',
-        },
-      ];
+    async getMovies() {
+      const moviesData = await MovieService.getMovies();
+      this.movies = moviesData.movies;
     },
-    getRatings() {
-      this.ratings = ['AO', 'G', 'GP'];
+    async getRatings() {
+      this.ratings = await MovieService.getRatings();
     },
-    filterMovies(type) {
+    async filterMovies(type) {
+      let moviesData;
       if (type === 'title') {
-        console.log(this.titleToSearch);
+        moviesData = await MovieService.getMovies(
+          this.titleToSearch, type,
+        );
       } else {
-        console.log(this.ratingToSearch);
+        moviesData = await MovieService.getMovies(
+          this.ratingToSearch, type,
+        );
       }
+      this.movies = moviesData.movies;
     },
   },
 };
