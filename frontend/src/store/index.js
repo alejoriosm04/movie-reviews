@@ -10,8 +10,8 @@ export default createStore ({
   mutations: {
     connect(state, data) {
       // here you make an API call to authenticate the user
-      state.user.id = date.id;
-      state.user.name = date.name;
+      state.user.id = data.id;
+      state.user.name = data.name;
     },
     disconnect(state) {
       state.user.id = '';
