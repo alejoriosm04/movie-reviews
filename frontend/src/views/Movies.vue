@@ -54,6 +54,25 @@
             </div>
         </div>
     </div>
+    <nav>
+      <ul class="pagination ms-3">
+        <li class="page-item">
+          <a class="page-link pointer" v-on:click="getPrevPage()">
+            Get previous {{ entriesPerPage }}
+          </a>
+        </li>
+        <li class="page-item disabled">
+          <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+            Showing Page: {{ currentPage }}
+          </a>
+        </li>
+        <li class="page-item">
+          <a class="page-link pointer" v-on:click="getNextPage()">
+            Get next {{ entriesPerPage }}
+          </a>
+        </li>
+      </ul>
+    </nav>
 </div>
 </template>
 
@@ -68,6 +87,10 @@ export default {
       ratings: [],
       titleToSearch: '',
       ratingToSearch: '',
+      typeToSearch: '',
+      currentPage: 0,
+      entriesPerPage: 20,
+      totalPage: 0,
     };
   },
   created() {
@@ -76,20 +99,41 @@ export default {
   },
   methods: {
     async getMovies() {
-      const moviesData = await MovieService.getMovies();
+      let query = '';
+      if (this.typeToSearch === 'title') {
+        query = this.titleToSearch;
+      } else if (this.typeToSearch === 'rated') {
+        query = this.ratingToSearch;
+      }
+      const moviesData = await MovieService.getMovies(
+        query, this.typeToSearch, this.currentPage
+      );
+      this.totalPages = Math.ceil(
+        moviesData.total_results / this.entriesPerPage
+      ) - 1;
       this.movies = moviesData.movies;
     },
     async getRatings() {
       this.ratings = await MovieService.getRatings();
     },
     async filterMovies(type) {
-      let moviesData;
-      if (type === 'title') {
-        moviesData = await MovieService.getMovies(this.titleToSearch, type);
-      } else {
-        moviesData = await MovieService.getMovies(this.ratingToSearch, type);
+      this.typeToSearch = type;
+      this.currentPage = 0;
+      this.getMovies();
+    },
+    async getNextPage() {
+      this.currentPage += 1;
+      if (this.currentPage > this.totalPages) {
+        this.currentPage = this.totalPages;
       }
-      this.movies = moviesData.movies;
+      this.getMovies();
+    },
+    async getPrevPage() {
+      this.currentPage -= 1;
+      if (this.currentPage < 0) {
+        this.currentPage = 0;
+      }
+      this.getMovies();
     },
   },
 };
