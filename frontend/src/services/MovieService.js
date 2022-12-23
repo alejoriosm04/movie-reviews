@@ -3,21 +3,21 @@ import axios from 'axios';
 export default class MovieService {
   static async getMovies(query = '', by = 'title', page = 0) {
     const res = await axios.get(
-      `https://movie-reviews-backend.vercel.app/api/v1/movies?${by}=${query}&page=${page}`,
+      `https://movie-reviews-api.vercel.app/api/v1/movies?${by}=${query}&page=${page}`,
     );
     return res.data;
   }
 
   static async getMovie(id) {
     const res = await axios.get(
-      `https://movie-reviews-backend.vercel.app/api/v1/movies/id/${id}`,
+      `https://movie-reviews-api.vercel.app/api/v1/movies/id/${id}`,
     );
     return res.data;
   }
 
   static async getRatings() {
     const res = await axios.get(
-      'https://movie-reviews-backend.vercel.app/api/v1/movies/ratings',
+      'https://movie-reviews-api.vercel.app/api/v1/movies/ratings',
     );
     return res.data;
   }
