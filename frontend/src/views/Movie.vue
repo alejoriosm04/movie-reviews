@@ -12,7 +12,7 @@
                 <div class="col-md-6 col-sm-12">
                     <p class="card-text">{{ movie.plot }}</p>
                     <div>
-                       <AddReview 
+                       <AddReview
                         v-if="$store.state.user.id"
                         :movieId="movie._id"
                         v-on:update-movie-info="getMovie"
@@ -45,75 +45,75 @@ import AddReview from '../components/AddReview.vue';
 import ReviewService from '../services/ReviewService';
 
 export default {
-    name: 'Movies',
-    components: {
-        AddReview,
+  name: 'Movies',
+  components: {
+    AddReview,
+  },
+  data() {
+    return {
+      movie: {
+        poster: '',
+        title: '',
+        rated: '',
+        plot: '',
+        _id: '',
+        reviews: [],
+      },
+      newReviewMessage: '',
+    };
+  },
+  created() {
+    this.getMovie();
+  },
+  methods: {
+    async getMovie() {
+      const movieData = await MovieService.getMovie(
+        this.$route.params.id,
+      );
+      const modifiedReviews = movieData.reviews.map(
+        (v) => ({ ...v, editing: false }),
+      );
+      movieData.reviews = modifiedReviews;
+      this.movie = movieData;
     },
-    data() {
-        return {
-            movie: {
-                poster: '',
-                title: '',
-                rated: '',
-                plot: '',
-                _id: '',
-                reviews: [],
-            },
-            newReviewMessage: '',
-        };
+    getFormatterDate(date) {
+      return moment(date).format('Do MMMM YYYY');
     },
-    created() {
-        this.getMovie();
+    verifyAuthorship(reviewUserId) {
+      if (this.$store.state.user.id && this.$store.state.user.id === reviewUserId) {
+        return true;
+      }
+      return false;
     },
-    methods: {
-        async getMovie() {
-            const movieData = await MovieService.getMovie(
-                this.$route.params.id
-            );
-            const modifiedReviews = movieData.reviews.map(
-                (v) => ({ ...v, editing: false})
-            );
-            movieData.reviews = modifiedReviews;
-            this.movie = movieData;
-        },
-        getFormatterDate(date) {
-            return moment(date).format('Do MMMM YYYY');
-        },
-        verifyAuthorship(reviewUserId) {
-            if (this.$store.state.user.id && this.$store.state.user.id === reviewUserId) {
-                return true;
-            }
-            return false;
-        },
-        editReview(review) {
-            if (review.editing) {
-                review.review = this.newReviewMessage;
-                this.saveUpdatedReview(review);
-                review.editing = false;
-            } else {
-                this.newReviewMessage = review.review;
-                review.editing = true;
-            }
-        },
-        async saveUpdatedReview(newReview) {
-            const data = {
-                review: newReview.review,
-                name: newReview.name,
-                user_id: newReview.user_id,
-                movie_id: newReview.movie_id,
-                review_id: newReview._id,
-            };
-            await ReviewService.updateReview(data);
-        },
-        async deleteReview(reviewId) {
-            const data = {
-                user_id: this.$store.state.user.id,
-                review_id: reviewId,
-            };
-            await ReviewService.deleteReview(data);
-            this.getMovie();
-        },
+    editReview(review) {
+      if (review.editing) {
+        review.review = this.newReviewMessage;
+        this.saveUpdatedReview(review);
+        review.editing = false;
+      } else {
+        this.newReviewMessage = review.review;
+        review.editing = true;
+      }
     },
+    async saveUpdatedReview(newReview) {
+      const data = {
+        review: newReview.review,
+        name: newReview.name,
+        user_id: newReview.user_id,
+        movie_id: newReview.movie_id,
+        review_id: newReview._id,
+      };
+      await ReviewService.updateReview(data);
+    },
+    async deleteReview(reviewId) {
+      const data = {
+        user_id: this.$store.state.user.id,
+        review_id: reviewId,
+      };
+      await ReviewService.deleteReview(data);
+      this.getMovie();
+    },
+  },
 };
 </script>
 

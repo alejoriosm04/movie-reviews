@@ -61,7 +61,7 @@ export default {
   },
   methods: {
     logout() {
-      this.$store.commit(`disconnect`);
+      this.$store.commit('disconnect');
     },
   },
 };

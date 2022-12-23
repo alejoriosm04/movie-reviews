@@ -85,13 +85,9 @@ export default {
     async filterMovies(type) {
       let moviesData;
       if (type === 'title') {
-        moviesData = await MovieService.getMovies(
-          this.titleToSearch, type,
-        );
+        moviesData = await MovieService.getMovies(this.titleToSearch, type);
       } else {
-        moviesData = await MovieService.getMovies(
-          this.ratingToSearch, type,
-        );
+        moviesData = await MovieService.getMovies(this.ratingToSearch, type);
       }
       this.movies = moviesData.movies;
     },

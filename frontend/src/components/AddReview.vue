@@ -19,27 +19,27 @@
 import ReviewService from '../services/ReviewService';
 
 export default {
-    name: 'AddReview',
-    data() {
-        return {
-            message: '',
+  name: 'AddReview',
+  data() {
+    return {
+      message: '',
+    };
+  },
+  props: ['movieId'],
+  methods: {
+    async saveReview() {
+      if (this.message !== '') {
+        const data = {
+          review: this.message,
+          name: this.$store.state.user.name,
+          user_id: this.$store.state.user.id,
+          movie_id: this.movieId,
         };
+        await ReviewService.createReview(data);
+        this.message = '';
+        this.$emit('updateMovieInfo');
+      }
     },
-    props: ['movieId'],
-    methods: {
-        async saveReview() {
-            if(this.message !== ''){
-                const data = {
-                    review: this.message,
-                    name: this.$store.state.user.name,
-                    user_id: this.$store.state.user.id,
-                    movie_id: this.movieId,
-                };
-                await ReviewService.createReview(data);
-                this.message = '';
-                this.$emit('updateMovieInfo');
-            }
-        },
-    },
+  },
 };
 </script>
