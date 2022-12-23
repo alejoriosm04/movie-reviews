@@ -24,9 +24,12 @@
                         <li class="list-group-item pb-3 pt-3" v-for="review in movie.reviews" :key="review._id">
                             <h5 class="card-title">Review by {{ review.name }}</h5>
                             <h6 class="card-subtitle mb-2 text-muted">{{ getFormatterDate(review.date) }}</h6>
-                            <p class="card-text">{{ review.review }}</p>
-                            <a class="btn btn-primary me-3"> Edit </a>
-                            <a class="btn btn-danger"> Delete </a>
+                            <p v-if="!review.editing" class="card-text">{{ review.review }}</p>
+                            <p v-if="review.editing" class="card-text">
+                                <input v-model="newReviewMessage" type="text" class="form-control">
+                            </p>
+                            <a v-if="verifyAuthorship(review.user_id)" v-on:click="editReview(review)" class="btn btn-primary me-3"> Edit </a>
+                            <a v-if="verifyAuthorship(review.user_id)" v-on:click="deleteReview(review._id)" class="btn btn-danger"> Delete </a>
                         </li>
                     </ul>
                 </div>
@@ -39,6 +42,7 @@
 import * as moment from 'moment';
 import MovieService from '../services/MovieService';
 import AddReview from '../components/AddReview.vue';
+import ReviewService from '../services/ReviewService';
 
 export default {
     name: 'Movies',
@@ -55,6 +59,7 @@ export default {
                 _id: '',
                 reviews: [],
             },
+            newReviewMessage: '',
         };
     },
     created() {
@@ -65,10 +70,48 @@ export default {
             const movieData = await MovieService.getMovie(
                 this.$route.params.id
             );
+            const modifiedReviews = movieData.reviews.map(
+                (v) => ({ ...v, editing: false})
+            );
+            movieData.reviews = modifiedReviews;
             this.movie = movieData;
         },
         getFormatterDate(date) {
             return moment(date).format('Do MMMM YYYY');
+        },
+        verifyAuthorship(reviewUserId) {
+            if (this.$store.state.user.id && this.$store.state.user.id === reviewUserId) {
+                return true;
+            }
+            return false;
+        },
+        editReview(review) {
+            if (review.editing) {
+                review.review = this.newReviewMessage;
+                this.saveUpdatedReview(review);
+                review.editing = false;
+            } else {
+                this.newReviewMessage = review.review;
+                review.editing = true;
+            }
+        },
+        async saveUpdatedReview(newReview) {
+            const data = {
+                review: newReview.review,
+                name: newReview.name,
+                user_id: newReview.user_id,
+                movie_id: newReview.movie_id,
+                review_id: newReview._id,
+            };
+            await ReviewService.updateReview(data);
+        },
+        async deleteReview(reviewId) {
+            const data = {
+                user_id: this.$store.state.user.id,
+                review_id: reviewId,
+            };
+            await ReviewService.deleteReview(data);
+            this.getMovie();
         },
     },
 };
